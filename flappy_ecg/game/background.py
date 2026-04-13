@@ -10,7 +10,7 @@ class Background:
         self.ground_height = 50
         self.ground_y = cfg.SCREEN_HEIGHT - self.ground_height
 
-        bg_path = os.path.join("images", "background.png")
+        bg_path = os.path.join(os.path.dirname(__file__), "..", "images", "background.png")
         if os.path.exists(bg_path):
             self.bg_image = pygame.image.load(bg_path).convert()
             self.bg_image = pygame.transform.scale(self.bg_image, (cfg.SCREEN_WIDTH, cfg.SCREEN_HEIGHT))
@@ -19,7 +19,7 @@ class Background:
             self.bg_image = None
             self.use_bg_image = False
 
-        ground_path = os.path.join("images", "ground.png")
+        ground_path = os.path.join(os.path.dirname(__file__), "..", "images", "ground.png")
         if os.path.exists(ground_path):
             self.ground_image = pygame.image.load(ground_path).convert()
             self.ground_image = pygame.transform.scale(self.ground_image, (cfg.SCREEN_WIDTH, self.ground_height))

@@ -1,3 +1,4 @@
+import os
 import pygame
 import time
 import config as cfg
@@ -47,9 +48,10 @@ class GameManager:
         self.font   = pygame.font.SysFont("Arial", 30, bold=True)
 
         # Sonidos
-        self.snd_jump      = _load_sound("sounds/jump.wav")
-        self.snd_score     = _load_sound("sounds/score.wav")
-        self.snd_game_over = _load_sound("sounds/game_over.wav")
+        _snd = lambda f: os.path.join(os.path.dirname(__file__), "..", "sounds", f)
+        self.snd_jump      = _load_sound(_snd("wing.wav"))
+        self.snd_score     = _load_sound(_snd("point.wav"))
+        self.snd_game_over = _load_sound(_snd("die.wav"))
 
         # Módulos persistentes
         self.score_manager = ScoreManager()

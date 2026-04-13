@@ -1,7 +1,6 @@
 import pygame
 import time
 import sys
-
 from serial_reader.reader import SerialReader
 from signal_processing.filters import apply_filters
 from signal_processing.peak_detector import PeakDetector

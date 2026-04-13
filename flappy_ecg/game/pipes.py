@@ -26,7 +26,7 @@ class Pipe:
         self.passed = False
 
         if not Pipe._image_loaded:
-            pipe_path = os.path.join("images", "pipe.png")
+            pipe_path = os.path.join(os.path.dirname(__file__), "..", "images", "pipe.png")
             if os.path.exists(pipe_path):
                 Pipe._pipe_image = pygame.image.load(pipe_path).convert_alpha()
             Pipe._image_loaded = True
