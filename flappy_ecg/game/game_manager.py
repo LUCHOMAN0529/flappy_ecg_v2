@@ -89,14 +89,35 @@ class GameManager:
         self.arduino_connected = connected
 
     def ecg_jump(self):
-        """Llamado por el detector de picos R."""
+        """Llamado por el detector EMG (puño cerrado).
+        
+        Funciona en todos los estados:
+          - INTRO     → arranca el juego inmediatamente
+          - PLAYING   → hace saltar al pájaro  ✓
+          - DYING     → (ignorado, espera animación)
+          - GAME_OVER → reinicia la partida al instante
+        """
         now_ms = int(time.time() * 1000)
         self.heart.beat(now_ms)
 
-        if self._state == self.STATE_PLAYING:
+        if self._state == self.STATE_INTRO:
+            # El puño cerrado arranca el juego sin esperar el timer de la intro
+            print("[ECG] Saltando intro → iniciando juego")
+            self._change_state(self.STATE_PLAYING)
+
+        elif self._state == self.STATE_PLAYING:
+            # Ignorar el primer puño si acabamos de cambiar de estado (evita salto accidental)
+            if self._state_timer < 0.5:
+                return
             self.bird.jump()
             self.total_beats += 1
             _play(self.snd_jump)
+
+        elif self._state == self.STATE_GAME_OVER:
+            # El puño cerrado reinicia inmediatamente sin esperar el countdown
+            print("[ECG] Reiniciando partida desde GAME_OVER")
+            self._change_state(self.STATE_PLAYING)
+            self._reset_gameplay()
 
     # ------------------------------------------------------------------
     # Loop principal

@@ -1,35 +1,40 @@
-import numpy as np
-import config as cfg
+# --- peak_detector.py ---
+# Detector EMG simple: solo mira el último valor del buffer en cada frame.
+
+UMBRAL_ACTIVACION  = 550
+UMBRAL_DESCANSO    = 430
+MIN_FRAMES_ENTRE   = 15   # frames de cooldown entre detecciones (~0.25s a 60fps)
+
 
 class PeakDetector:
     def __init__(self):
-        self.last_peak_time = 0
-        self.threshold = 0.0
+        self._estado       = "abierto"
+        self._cooldown     = 0
 
-    def detect_peak(self, filtered_data, current_time_ms):
-        """
-        Analiza los datos más recientes para detectar un latido.
-        Retorna True si detecta un pico R válido, False en caso contrario.
-        """
-        if len(filtered_data) < 50:
+    def detect_peak(self, raw_data: list, current_time_ms: int) -> bool:
+        if not raw_data:
             return False
 
-        # Usar una ventana de las últimas 50 muestras para el análisis
-        window = filtered_data[-50:]
-        max_val = np.max(window)
-        mean_val = np.mean(window)
+        # Solo el último valor disponible
+        valor = raw_data[-1]
+        if valor is None:
+            return False
 
-        # Calcular un umbral dinámico basado en la media y el máximo reciente
-        self.threshold = mean_val + (max_val - mean_val) * cfg.PEAK_THRESHOLD_REL
+        if self._cooldown > 0:
+            self._cooldown -= 1
 
-        # Tomar el valor más reciente para evaluarlo
-        latest_val = filtered_data[-1]
+        # Detección de CIERRE
+        if (valor > UMBRAL_ACTIVACION
+                and self._estado == "abierto"
+                and self._cooldown == 0):
+            self._estado   = "cerrado"
+            self._cooldown = MIN_FRAMES_ENTRE
+            print(f"✊ PUÑO CERRADO  — ADC: {valor}  → ¡SALTO!")
+            return True
 
-        # Verificar si el valor superó el umbral
-        if latest_val > self.threshold:
-            # Verificar si ha pasado suficiente tiempo desde el último latido
-            if (current_time_ms - self.last_peak_time) > cfg.PEAK_MIN_DIST:
-                self.last_peak_time = current_time_ms
-                return True
+        # Rearme
+        if valor < UMBRAL_DESCANSO and self._estado == "cerrado":
+            self._estado = "abierto"
+            print(f"✋ Puño abierto  — ADC: {valor}")
 
         return False

@@ -118,7 +118,7 @@ class GameOverScreen:
             y += 38
 
         # Latidos totales
-        _centered_text(surface, f"Latidos en esta partida: {total_beats}",
+        _centered_text(surface, f"Saltos en esta partida: {total_beats}",
                        self.font_normal, cfg.COLOR_HEART_PINK, y)
         y += 45
 
