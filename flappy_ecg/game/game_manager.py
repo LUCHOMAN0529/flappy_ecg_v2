@@ -118,16 +118,14 @@ class GameManager:
             self._change_state(self.STATE_PLAYING)
 
         elif self._state == self.STATE_PLAYING:
-            # Ignorar el primer puño si acabamos de cambiar de estado (evita salto accidental)
-            if self._state_timer < 0.5:
-                return
             self.bird.jump()
             self.total_beats += 1
             self._emg_widget.notify_jump()
             _play(self.snd_jump)
 
         elif self._state == self.STATE_GAME_OVER:
-            # El puño cerrado reinicia inmediatamente sin esperar el countdown
+            if self._state_timer < 1.0:
+                return
             print("[ECG] Reiniciando partida desde GAME_OVER")
             self._change_state(self.STATE_PLAYING)
             self._reset_gameplay()
