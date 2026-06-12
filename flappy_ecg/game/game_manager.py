@@ -4,6 +4,7 @@ import time
 import config as cfg
 
 from game.bird       import Bird
+from game.emg_widget import EMGWidget
 from game.pipes      import Pipe
 from game.background import Background
 from game.heart_widget import HeartWidget
@@ -60,6 +61,8 @@ class GameManager:
 
         # Bandera de Arduino (se actualiza desde main.py)
         self.arduino_connected = False
+        self._peak_detector = None
+        self._emg_widget = EMGWidget(x=10, y=cfg.SCREEN_HEIGHT - 100, umbral=500)
 
         self._state = self.STATE_INTRO
         self._state_timer = 0.0        # tiempo acumulado en el estado actual
@@ -76,17 +79,26 @@ class GameManager:
         self.score      = 0
         self.total_beats = 0
         self.last_pipe_time = pygame.time.get_ticks()
-
-        # Corazón en pantalla (esquina superior derecha)
         self.heart = HeartWidget(cfg.SCREEN_WIDTH - 60, 40, base_size=20)
-
         self._prev_time = time.time()
+
+        # Resetear el detector EMG para que empiece con estado "abierto"
+        if self._peak_detector:
+            self._peak_detector.reset()
 
     # ------------------------------------------------------------------
     # API pública para main.py
     # ------------------------------------------------------------------
     def set_arduino_connected(self, connected: bool):
         self.arduino_connected = connected
+
+    def set_peak_detector(self, detector):
+        """Guarda referencia al detector para resetearlo entre partidas."""
+        self._peak_detector = detector
+
+    def push_emg(self, value):
+        """Recibe la última muestra EMG para mostrarla en la gráfica."""
+        self._emg_widget.push(value)
 
     def ecg_jump(self):
         """Llamado por el detector EMG (puño cerrado).
@@ -111,6 +123,7 @@ class GameManager:
                 return
             self.bird.jump()
             self.total_beats += 1
+            self._emg_widget.notify_jump()
             _play(self.snd_jump)
 
         elif self._state == self.STATE_GAME_OVER:
@@ -255,5 +268,9 @@ class GameManager:
         hs_surf = hs_font.render(f"Récord: {self.score_manager.high_score}", True, cfg.COLOR_GOLD)
         self.screen.blit(hs_surf, (10, 44))
 
-        # Corazón pulsante + BPM
+        # Corazón pulsante
         self.heart.draw(self.screen)
+
+        # Gráfica EMG (solo si Arduino conectado)
+        if self.arduino_connected:
+            self._emg_widget.draw(self.screen)
