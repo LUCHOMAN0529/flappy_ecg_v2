@@ -62,7 +62,7 @@ class GameManager:
         # Bandera de Arduino (se actualiza desde main.py)
         self.arduino_connected = False
         self._peak_detector = None
-        self._emg_widget = EMGWidget(x=10, y=cfg.SCREEN_HEIGHT - 100, umbral=500)
+        self._emg_widget = EMGWidget(x=10, y=cfg.SCREEN_HEIGHT - 100, umbral=2800)
 
         self._state = self.STATE_INTRO
         self._state_timer = 0.0        # tiempo acumulado en el estado actual

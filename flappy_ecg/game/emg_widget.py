@@ -21,7 +21,7 @@ COL_BORDER   = (60,  80,  120)
 
 
 class EMGWidget:
-    def __init__(self, x: int, y: int, umbral: int = 520):
+    def __init__(self, x: int, y: int, umbral: int = 2800):
         self.x       = x
         self.y       = y
         self.umbral  = umbral
@@ -57,9 +57,9 @@ class EMGWidget:
         gw = W - PADDING * 2
         gh = H - PADDING * 2 - 12
 
-        # Escala: 0-1023 ADC → alto del área
+        # Escala: 0-4095 ADC (ESP32, 12 bits) → alto del área
         def to_py(val):
-            return gy + gh - int((val / 1023) * gh)
+            return gy + gh - int((val / 4095) * gh)
 
         # Línea de umbral
         thresh_y = to_py(self.umbral)

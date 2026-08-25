@@ -3,8 +3,8 @@
 
 import collections
 
-# --- Configuración Puerto Serie (Arduino) ---
-SERIAL_PORT = "COM3"
+# --- Configuración Puerto Serie (ESP32) ---
+SERIAL_PORT = "COM6"
 BAUD_RATE = 115200
 
 # --- Parámetros de Adquisición y Procesamiento de Señal ---
